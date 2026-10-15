@@ -1,6 +1,3 @@
--- Заготовка домашнего задания первого занятия.
--- Дополните enrollments в этом файле и затем примените схему к пустой базе.
--- Родительские таблицы готовы; менять имена колонок не нужно для готового seed.
 BEGIN;
 
 CREATE TABLE users (
@@ -18,16 +15,18 @@ CREATE TABLE courses (
 
 CREATE TABLE enrollments (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id bigint,
-    course_id bigint,
-    amount_cents bigint,
-    status text DEFAULT 'pending',
-    created_at timestamptz NOT NULL DEFAULT now()
-    -- Добавьте обязательность ссылок, суммы и статуса.
-    -- Добавьте FK на users и courses.
-    -- Добавьте уникальность пары user_id и course_id.
-    -- Добавьте CHECK для неотрицательной суммы и списка статусов.
-    -- Перед ограничениями таблицы потребуется запятая после created_at.
+    user_id bigint NOT NULL,
+    course_id bigint NOT NULL,
+    amount_cents bigint NOT NULL,
+    status text NOT NULL DEFAULT 'pending',
+    created_at timestamptz NOT NULL DEFAULT now(),
+
+    CONSTRAINT enrollments_user_fk FOREIGN KEY (user_id) REFERENCES users(id),
+    CONSTRAINT enrollments_course_fk FOREIGN KEY (course_id) REFERENCES courses(id),
+    CONSTRAINT enrollments_user_course_unique UNIQUE (user_id, course_id),
+    CONSTRAINT enrollments_amount_nonnegative CHECK (amount_cents >= 0),
+    CONSTRAINT enrollments_status_allowed
+        CHECK (status IN ('pending', 'paid', 'cancelled'))
 );
 
 COMMIT;

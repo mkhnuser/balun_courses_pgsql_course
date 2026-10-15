@@ -1,4 +1,3 @@
--- Применить один раз после завершения и применения schema.sql.
 BEGIN;
 
 INSERT INTO users(email) VALUES
